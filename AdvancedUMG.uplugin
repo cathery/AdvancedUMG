@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "AdvancedUMG",
+	"Description": "Advanced UMG elements with added functionality",
+	"Category": "Widgets",
+	"CreatedBy": "Cathery",
+	"CreatedByURL": "https://github.com/cathery/AdvancedUMG",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "AdvancedUMG",
+			"Type": "Runtime",
+			"LoadingPhase": "PreEarlyLoadingScreen"
+		}
+	]
+}
