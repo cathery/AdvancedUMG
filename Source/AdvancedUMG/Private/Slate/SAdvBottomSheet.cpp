@@ -7,6 +7,11 @@
 
 #include "Slate/SAdvColorRect.h"
 
+SLATE_IMPLEMENT_WIDGET(SAdvBottomSheet)
+void SAdvBottomSheet::PrivateRegisterAttributes(FSlateAttributeInitializer& AttributeInitializer)
+{
+}
+
 SAdvBottomSheet::SAdvBottomSheet()
 	: DragThreshold(0.0f)
 	, MoveThreshold(0.0f)
@@ -33,7 +38,7 @@ SAdvBottomSheet::SAdvBottomSheet()
 void SAdvBottomSheet::Construct(const FArguments& InArgs)
 {
 	// Call the parent constructor
-	SAdvPanel::Construct(SAdvPanel::FArguments());
+	Super::Construct(Super::FArguments());
 
 	DragThreshold = InArgs._DragThreshold;
 	MoveThreshold = InArgs._MoveThreshold;
@@ -53,7 +58,7 @@ void SAdvBottomSheet::Construct(const FArguments& InArgs)
 	}
 	CurrentSheetTargetAreaIndex = 0;
 
-	SAdvPanel::AddSlot()
+	AddSlot()
 	.HAlign(EHorizontalAlignment::HAlign_Fill)
 	.VAlign(EVerticalAlignment::VAlign_Fill)
 	[
@@ -62,22 +67,23 @@ void SAdvBottomSheet::Construct(const FArguments& InArgs)
 		.Visibility(EVisibility::SelfHitTestInvisible)
 	];
 
-	SheetPanelSlot = &SAdvPanel::AddSlot()
+	AddSlot()
+	.Expose(SheetPanelSlot)
 	.HAlign(EHorizontalAlignment::HAlign_Fill)
 	.VAlign(EVerticalAlignment::VAlign_Fill)
 	[
 		SAssignNew(SheetPanel, SAdvPanel)
 		.Visibility(EVisibility::SelfHitTestInvisible)
 		.Clipping(EWidgetClipping::ClipToBounds)
-		+ SAdvPanel::Slot()
+		+ Slot()
 		[
-			SAssignNew(SheetScrollPanel, SAdvBottomSheetScrollPanel, InArgs.Slots)
+			SAssignNew(SheetScrollPanel, SAdvBottomSheetScrollPanel, InArgs._Slots)
 			.Image(InArgs._Background)
 		]
 	];
 }
 
-SAdvBottomSheet::FSlot& SAdvBottomSheet::AddSheetSlot(bool bIsPersistent)
+SAdvBottomSheet::FScopedWidgetSlotArguments SAdvBottomSheet::AddSheetSlot(bool bIsPersistent)
 {
 	if (bIsPersistent)
 	{
@@ -226,7 +232,7 @@ void SAdvBottomSheet::SetScrollSpeedMultiplier(float InScrollSpeedMultiplier)
 
 void SAdvBottomSheet::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
-	SAdvPanel::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+	Super::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 	const FVector2D& CurrentSize = AllottedGeometry.GetLocalSize();
 
 	// If the geometry of the widget changed, update the height values
@@ -242,7 +248,7 @@ void SAdvBottomSheet::Tick(const FGeometry& AllottedGeometry, const double InCur
 	CurrentScrollOffset = FMath::Clamp(ScrollOffset, FindScrollPanelMinimumOffset(AllottedGeometry), FindScrollPanelMaximumOffset(AllottedGeometry));
 
 
-	SheetPanelSlot->Padding(FMargin(0.0f,  CurrentSize.Y - CurrentSheetOffset, 0.0f, 0.0f));
+	SheetPanelSlot->SetPadding(FMargin(0.0f,  CurrentSize.Y - CurrentSheetOffset, 0.0f, 0.0f));
 	SheetScrollPanel->PhysicalOffset = CurrentScrollOffset;
 }
 
@@ -367,7 +373,7 @@ FReply SAdvBottomSheet::OnMouseMove(const FGeometry& MyGeometry, const FPointerE
 
 void SAdvBottomSheet::OnMouseCaptureLost(const FCaptureLostEvent& CaptureLostEvent)
 {
-	SAdvPanel::OnMouseCaptureLost(CaptureLostEvent);
+	Super::OnMouseCaptureLost(CaptureLostEvent);
 	bIsPressed = false;
 	bIsDragging = false;
 	TotalMouseDelta = 0.0f;
@@ -388,11 +394,11 @@ SAdvBottomSheetScrollPanel::SAdvBottomSheetScrollPanel()
 {
 }
 
-void SAdvBottomSheetScrollPanel::Construct(const FArguments& InArgs, const TArray<FSlot*>& InSlots)
+void SAdvBottomSheetScrollPanel::Construct(const FArguments& InArgs, const TArray<FSlot::FSlotArguments>& InSlots)
 {
-	FArguments ArgsCopy(InArgs);
-	ArgsCopy.Slots = InSlots;
-	SAdvImage::Construct(ArgsCopy);
+	// FArguments ArgsCopy(InArgs);
+	// ArgsCopy._Slots = InSlots;
+	// SAdvImage::Construct(ArgsCopy);
 
 	PhysicalOffset = 0.0f;
 }

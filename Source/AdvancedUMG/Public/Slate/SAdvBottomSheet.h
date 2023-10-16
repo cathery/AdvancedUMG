@@ -13,8 +13,10 @@ class SAdvBottomSheetScrollPanel;
 /**
  * Basic container widget that lets you define padding for child elements.
  */
-class ADVANCEDUMG_API SAdvBottomSheet : public SAdvPanel
+class SAdvBottomSheet : public SAdvPanel
 {
+	SLATE_DECLARE_WIDGET_API(SAdvBottomSheet, SAdvPanel, ADVANCEDUMG_API)
+
 public:
 	SLATE_BEGIN_ARGS(SAdvBottomSheet)
 			: _Background(FCoreStyle::Get().GetDefaultBrush())
@@ -52,7 +54,7 @@ public:
 		/** The list of target areas the sheet should snap to */
 		SLATE_ARGUMENT(TArray<float>, SheetTargetAreas)
 
-		SLATE_SUPPORTS_SLOT(SAdvPanel::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
 	SLATE_END_ARGS()
 
 public:
@@ -71,7 +73,7 @@ public:
 	 * @param bIsPersistent Should the slot always be on top of the sheet?
 	 * @return The added slot.
 	 */
-	FSlot& AddSheetSlot(bool bIsPersistent);
+	FScopedWidgetSlotArguments AddSheetSlot(bool bIsPersistent);
 
 	/**
 	 * Removes a particular content slot.
@@ -213,7 +215,7 @@ class ADVANCEDUMG_API SAdvBottomSheetScrollPanel : public SAdvImage
 public:
 	SAdvBottomSheetScrollPanel();
 
-	void Construct(const FArguments& InArgs, const TArray<FSlot*>& InSlots);
+	void Construct(const FArguments& InArgs, const TArray<FSlot::FSlotArguments>& InSlots);
 
 	virtual void OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const override;
 

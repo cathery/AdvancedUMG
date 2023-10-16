@@ -24,7 +24,8 @@ void UAdvBottomSheetSlot::SynchronizeProperties()
 
 void UAdvBottomSheetSlot::BuildSlot(const TSharedRef<SAdvBottomSheet> Container)
 {
-	Slot = &Container->AddSheetSlot(bIsPersistent)
+	Container->AddSheetSlot(bIsPersistent)
+	.Expose(Slot)
 	.Padding(Padding)
 	.HAlign(HorizontalAlignment)
 	.VAlign(VerticalAlignment)

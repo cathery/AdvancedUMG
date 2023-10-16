@@ -5,17 +5,24 @@
 #include "CoreMinimal.h"
 
 // Super basic Slate widget container that can have multiple children.
-class ADVANCEDUMG_API SAdvPanel : public SPanel
+class SAdvPanel : public SPanel
 {
+	SLATE_DECLARE_WIDGET_API(SAdvPanel, SPanel, ADVANCEDUMG_API)
+
 public:
 	/** Stores the per-child info for this panel type */
-	struct FSlot : public TSlotBase<FSlot>, public TSupportsContentAlignmentMixin<FSlot>, public TSupportsContentPaddingMixin<FSlot>
+	struct FSlot : public TBasicLayoutWidgetSlot<FSlot>
 	{
 		FSlot()
-			: TSlotBase<FSlot>()
-			, TSupportsContentAlignmentMixin<FSlot>(HAlign_Fill, VAlign_Fill)
+			: TBasicLayoutWidgetSlot<FSlot>(HAlign_Fill, VAlign_Fill)
 		{
 		}
+
+		SLATE_SLOT_BEGIN_ARGS(FSlot, TBasicLayoutWidgetSlot<FSlot>)
+		SLATE_SLOT_END_ARGS()
+
+		void Construct(const FChildren& SlotOwner, FSlotArguments&& InArgs);
+		static void RegisterAttributes(FSlateWidgetSlotAttributeInitializer& AttributeInitializer);
 	};
 
 	SLATE_BEGIN_ARGS(SAdvPanel)
@@ -23,7 +30,8 @@ public:
 			_Visibility = EVisibility::SelfHitTestInvisible;
 		}
 
-		SLATE_SUPPORTS_SLOT(SAdvPanel::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
+
 	SLATE_END_ARGS()
 
 	/** Default constructor. */
@@ -38,17 +46,21 @@ public:
 	 */
 	void Construct(const FArguments& InArgs);
 
-	static FSlot& Slot()
+	static FSlot::FSlotArguments Slot()
 	{
-		return *(new FSlot());
+		return FSlot::FSlotArguments(MakeUnique<FSlot>());
 	}
 
+	using FScopedWidgetSlotArguments = TPanelChildren<FSlot>::FScopedWidgetSlotArguments;
 	/**
 	 * Adds a content slot.
 	 *
 	 * @return The added slot.
 	 */
-	virtual FSlot& AddSlot();
+	FScopedWidgetSlotArguments AddSlot()
+	{
+		return FScopedWidgetSlotArguments(MakeUnique<FSlot>(), Children, INDEX_NONE);
+	}
 
 	/**
 	 * Removes a particular content slot.

@@ -5,11 +5,13 @@
 #include "CoreMinimal.h"
 
 // The base class for AdvHorizontalBox and AdvVerticalBox. Contains all the logic of displaying objects in order.
-class ADVANCEDUMG_API SAdvPanelBox : public SPanel
+class SAdvPanelBox : public SPanel
 {
+	SLATE_DECLARE_WIDGET_API(SAdvPanelBox, SPanel, ADVANCEDUMG_API)
+
 public:
 	/** Stores the per-child info for this panel type */
-	struct FSlot : public TSlotBase<FSlot>, public TSupportsContentAlignmentMixin<FSlot>, public TSupportsContentPaddingMixin<FSlot>
+	struct FSlot : public TBasicLayoutWidgetSlot<FSlot>
 	{
 		virtual ~FSlot() override
 		{
@@ -25,11 +27,17 @@ public:
 		FSizeParam SizeParam;
 
 		FSlot()
-			: TSlotBase<FSlot>()
-			, TSupportsContentAlignmentMixin<FSlot>(HAlign_Fill, VAlign_Fill)
+			: TBasicLayoutWidgetSlot<FSlot>(HAlign_Fill, VAlign_Fill)
 			, SizeParam(FStretch(1))
 		{
 		}
+
+		SLATE_SLOT_BEGIN_ARGS(FSlot, TBasicLayoutWidgetSlot<FSlot>)
+			SLATE_ARGUMENT(TOptional<FSizeParam>, SizeParam)
+		SLATE_SLOT_END_ARGS()
+
+		void Construct(const FChildren& SlotOwner, FSlotArguments&& InArgs);
+		static void RegisterAttributes(FSlateWidgetSlotAttributeInitializer& AttributeInitializer);
 	};
 
 	SLATE_BEGIN_ARGS(SAdvPanelBox)
@@ -39,7 +47,7 @@ public:
 			_Visibility = EVisibility::SelfHitTestInvisible;
 		}
 
-		SLATE_SUPPORTS_SLOT(SAdvPanelBox::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
 
 		SLATE_ATTRIBUTE(float, Spacing)
 		SLATE_ATTRIBUTE(EOrientation, Orientation)
@@ -55,17 +63,21 @@ public:
 	 */
 	void Construct(const FArguments& InArgs);
 
-	static FSlot& Slot()
+	static FSlot::FSlotArguments Slot()
 	{
-		return *(new FSlot());
+		return FSlot::FSlotArguments(MakeUnique<FSlot>());
 	}
 
+	using FScopedWidgetSlotArguments = TPanelChildren<FSlot>::FScopedWidgetSlotArguments;
 	/**
 	 * Adds a content slot.
 	 *
 	 * @return The added slot.
 	 */
-	FSlot& AddSlot();
+	FScopedWidgetSlotArguments AddSlot()
+	{
+		return FScopedWidgetSlotArguments(MakeUnique<FSlot>(), Children, INDEX_NONE);
+	}
 
 	/**
 	 * Removes a particular content slot.
@@ -85,6 +97,8 @@ public:
 
 	void SetSpacing(const TAttribute<float>& InSpacing);
 
+	void SetOrientation(const TAttribute<EOrientation>& InOrientation);
+
 protected:
 	//~ Begin SPanel Interface
 	virtual void      OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const override;
@@ -97,8 +111,8 @@ protected:
 	TPanelChildren<FSlot> Children;
 
 	/** The spacing between the child elements. */
-	TAttribute<float> Spacing;
+	TSlateAttribute<float> Spacing;
 
 	/** The Box Panel's orientation; determined at construct time. */
-	TAttribute<EOrientation> Orientation;
+	TSlateAttribute<EOrientation> Orientation;
 };

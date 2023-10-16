@@ -4,27 +4,35 @@
 
 #include "Layout/LayoutUtils.h"
 
+SLATE_IMPLEMENT_WIDGET(SAdvImage)
+void SAdvImage::PrivateRegisterAttributes(FSlateAttributeInitializer& AttributeInitializer)
+{
+	SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION(AttributeInitializer, ColorAndOpacity, EInvalidateWidgetReason::Paint);
+}
+
 SAdvImage::SAdvImage()
-	: bFlipForRightToLeftFlowDirection(false)
+	: ColorAndOpacity(*this, FLinearColor::White)
+	, bFlipForRightToLeftFlowDirection(false)
 {
 }
 
 void SAdvImage::Construct(const FArguments& InArgs)
 {
 	Image                            = FInvalidatableBrushAttribute(InArgs._Image);
-	ColorAndOpacity                  = InArgs._ColorAndOpacity;
 	bFlipForRightToLeftFlowDirection = InArgs._FlipForRightToLeftFlowDirection;
+
+	SetColorAndOpacity(InArgs._ColorAndOpacity);
 	SetOnMouseButtonDown(InArgs._OnMouseButtonDown);
 
 	// Call the parent constructor with our slots
-	SAdvPanel::FArguments ParentArgs;
-	ParentArgs.Slots = InArgs.Slots;
-	SAdvPanel::Construct(ParentArgs);
+	Super::FArguments ParentArgs;
+	ParentArgs._Slots = MoveTemp(const_cast<FArguments&>(InArgs)._Slots);
+	Super::Construct(ParentArgs);
 }
 
 void SAdvImage::SetColorAndOpacity(const TAttribute<FSlateColor>& InColorAndOpacity)
 {
-	SetAttribute(ColorAndOpacity, InColorAndOpacity, EInvalidateWidgetReason::Paint);
+	ColorAndOpacity.Assign(*this, InColorAndOpacity);
 }
 
 void SAdvImage::SetColorAndOpacity(FLinearColor InColorAndOpacity)
@@ -65,7 +73,7 @@ int32 SAdvImage::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeomet
 FVector2D SAdvImage::ComputeDesiredSize(float LayoutScaleMultiplier) const
 {
 	// Return the size of children or the size of the image, whichever is bigger
-	const FVector2D& ContentSize = SAdvPanel::ComputeDesiredSize(LayoutScaleMultiplier);
+	const FVector2D& ContentSize = Super::ComputeDesiredSize(LayoutScaleMultiplier);
 	const FSlateBrush* ImageBrush = Image.Get();
 	if (ImageBrush != nullptr)
 	{

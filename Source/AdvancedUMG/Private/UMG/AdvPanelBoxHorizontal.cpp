@@ -19,8 +19,9 @@ void UAdvPanelBoxHorizontal::SetSpacing(float InSpacing)
 
 UAdvPanelBoxHorizontal::UAdvPanelBoxHorizontal()
 {
+	Spacing = 0.0f;
 	bIsVariable = false;
-	Visibility  = ESlateVisibility::SelfHitTestInvisible;
+	SetVisibilityInternal(ESlateVisibility::SelfHitTestInvisible);
 }
 
 UClass* UAdvPanelBoxHorizontal::GetSlotClass() const

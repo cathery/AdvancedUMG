@@ -11,7 +11,7 @@ UAdvColorRect::UAdvColorRect()
 	, OutlineColorAndOpacity(FLinearColor::Black)
 {
 	bIsVariable = true;
-	Visibility  = ESlateVisibility::Visible;
+	SetVisibilityInternal(ESlateVisibility::Visible);
 }
 
 void UAdvColorRect::SetColorAndOpacity(FLinearColor InColorAndOpacity)

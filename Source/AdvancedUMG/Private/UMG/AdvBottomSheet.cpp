@@ -14,7 +14,7 @@ UAdvBottomSheet::UAdvBottomSheet()
 	, ScrollSpeedMultiplier(1.0f)
 	, SheetTargetAreas({0.1f, 0.25f, 0.75f})
 {
-	Visibility = ESlateVisibility::SelfHitTestInvisible;
+	SetVisibilityInternal(ESlateVisibility::SelfHitTestInvisible);
 
 #if WITH_EDITORONLY_DATA
 	SheetOffset = 0.0f;

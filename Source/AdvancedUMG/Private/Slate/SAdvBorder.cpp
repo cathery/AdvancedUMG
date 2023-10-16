@@ -4,6 +4,12 @@
 
 #include "Layout/LayoutUtils.h"
 
+SLATE_IMPLEMENT_WIDGET(SAdvBorder)
+void SAdvBorder::PrivateRegisterAttributes(FSlateAttributeInitializer& AttributeInitializer)
+{
+}
+
+
 SAdvBorder::SAdvBorder()
 	: ImageScale(1.0f)
 {
@@ -13,9 +19,9 @@ SAdvBorder::SAdvBorder()
 void SAdvBorder::Construct(const FArguments& InArgs)
 {
 	// Call the parent constructor with our slots
-	SAdvPanel::FArguments ParentArgs;
-	ParentArgs.Slots = InArgs.Slots;
-	SAdvPanel::Construct(ParentArgs);
+	Super::FArguments ParentArgs;
+	ParentArgs._Slots = MoveTemp(const_cast<FArguments&>(InArgs)._Slots);
+	Super::Construct(ParentArgs);
 
 	Image = InArgs._Image;
 	Image.DrawAs = ESlateBrushDrawType::Border;
@@ -57,7 +63,7 @@ int32 SAdvBorder::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeome
 FVector2D SAdvBorder::ComputeDesiredSize(float LayoutScaleMultiplier) const
 {
 	// Return the size of children or the size of the image, whichever is bigger
-	const FVector2D& ContentSize = SAdvPanel::ComputeDesiredSize(LayoutScaleMultiplier);
+	const FVector2D& ContentSize = Super::ComputeDesiredSize(LayoutScaleMultiplier);
 	const FVector2D& ImageSize = Image.ImageSize;
 
 	const FVector2D MaxSize(

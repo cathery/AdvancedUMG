@@ -2,8 +2,6 @@
 
 #include "Slate/AdvButtonSimpleStyle.h"
 
-#include "SlateCore/Public/Brushes/SlateBoxBrush.h"
-
 const FName FAdvButtonSimpleStyle::TypeName( TEXT("FAdvSimpleButtonStyle") );
 
 FAdvButtonSimpleStyle::FAdvButtonSimpleStyle()

@@ -4,6 +4,11 @@
 
 #include "Layout/LayoutUtils.h"
 
+SLATE_IMPLEMENT_WIDGET(SAdvButtonSimple)
+void SAdvButtonSimple::PrivateRegisterAttributes(FSlateAttributeInitializer& AttributeInitializer)
+{
+}
+
 SAdvButtonSimple::SAdvButtonSimple()
 	: Style(nullptr)
 {
@@ -19,8 +24,8 @@ void SAdvButtonSimple::Construct(const FArguments& InArgs)
 	bIsPressed = false;
 
 	// Call the parent constructor with our slots
-	SAdvButtonBase::FArguments ParentArgs;
-	ParentArgs.Slots = InArgs.Slots;
+	Super::FArguments ParentArgs;
+	ParentArgs._Slots = MoveTemp(const_cast<FArguments&>(InArgs)._Slots);
 	ParentArgs
 		.ClickMethod(InArgs._ClickMethod)
 		.TouchMethod(InArgs._TouchMethod)
@@ -31,7 +36,7 @@ void SAdvButtonSimple::Construct(const FArguments& InArgs)
 		.OnReleased(InArgs._OnReleased)
 		.OnHovered(InArgs._OnHovered)
 		.OnUnhovered(InArgs._OnUnhovered);
-	SAdvButtonBase::Construct(ParentArgs);
+	Super::Construct(ParentArgs);
 
 	Style = InArgs._Style;
 }
@@ -44,19 +49,19 @@ void SAdvButtonSimple::SetStyle(const FAdvButtonSimpleStyle* InStyle)
 
 void SAdvButtonSimple::OnClick()
 {
-	SAdvButtonBase::OnClick();
+	Super::OnClick();
 	PlaySound(Style->ClickedSound);
 }
 
 void SAdvButtonSimple::OnPress()
 {
-	SAdvButtonBase::OnPress();
+	Super::OnPress();
 	PlaySound(Style->PressedSound);
 }
 
 void SAdvButtonSimple::OnHover()
 {
-	SAdvButtonBase::OnHover();
+	Super::OnHover();
 	PlaySound(Style->HoveredSound);
 }
 
@@ -72,7 +77,7 @@ void SAdvButtonSimple::OnArrangeChildren(const FGeometry& AllottedGeometry, FArr
 		const EVisibility ChildVisibility = CurWidget->GetVisibility();
 		if (ArrangedChildren.Accepts(ChildVisibility))
 		{
-			const FMargin SlotPadding(LayoutPaddingWithFlow(InFlowDirection, Style->ContentPadding + CurChild.SlotPadding.Get()));
+			const FMargin SlotPadding(LayoutPaddingWithFlow(InFlowDirection, Style->ContentPadding + CurChild.GetPadding()));
 			const AlignmentArrangeResult XResult = AlignChild<Orient_Horizontal>(InFlowDirection, AllottedGeometry.GetLocalSize().X, CurChild, SlotPadding);
 			const AlignmentArrangeResult YResult = AlignChild<Orient_Vertical>(AllottedGeometry.GetLocalSize().Y, CurChild, SlotPadding);
 

@@ -16,8 +16,9 @@ void UAdvPanelBoxVertical::SetSpacing(float InSpacing)
 
 UAdvPanelBoxVertical::UAdvPanelBoxVertical()
 {
+	Spacing = 0.0f;
 	bIsVariable = false;
-	Visibility  = ESlateVisibility::SelfHitTestInvisible;
+	SetVisibilityInternal(ESlateVisibility::SelfHitTestInvisible);
 }
 
 UClass* UAdvPanelBoxVertical::GetSlotClass() const

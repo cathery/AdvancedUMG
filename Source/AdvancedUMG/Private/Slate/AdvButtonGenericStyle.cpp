@@ -2,8 +2,6 @@
 
 #include "Slate/AdvButtonGenericStyle.h"
 
-#include "SlateCore/Public/Brushes/SlateBoxBrush.h"
-
 const FName FAdvButtonGenericStyle::TypeName(TEXT("FAdvGenericButtonStyle"));
 
 FAdvButtonGenericStyle::FAdvButtonGenericStyle()

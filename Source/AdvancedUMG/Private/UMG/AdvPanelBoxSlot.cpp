@@ -29,7 +29,7 @@ void UAdvPanelBoxSlot::SetPadding(FMargin InPadding)
 	Padding = InPadding;
 	if (Slot)
 	{
-		Slot->Padding(InPadding);
+		Slot->SetPadding(InPadding);
 	}
 }
 
@@ -38,7 +38,7 @@ void UAdvPanelBoxSlot::SetHorizontalAlignment(EHorizontalAlignment InHorizontalA
 	HorizontalAlignment = InHorizontalAlignment;
 	if (Slot)
 	{
-		Slot->HAlign(InHorizontalAlignment);
+		Slot->SetHorizontalAlignment(InHorizontalAlignment);
 	}
 }
 
@@ -47,7 +47,7 @@ void UAdvPanelBoxSlot::SetVerticalAlignment(EVerticalAlignment InVerticalAlignme
 	VerticalAlignment = InVerticalAlignment;
 	if (Slot)
 	{
-		Slot->VAlign(InVerticalAlignment);
+		Slot->SetVerticalAlignment(InVerticalAlignment);
 	}
 }
 
@@ -61,10 +61,11 @@ void UAdvPanelBoxSlot::SynchronizeProperties()
 
 void UAdvPanelBoxSlot::BuildSlot(TSharedRef<SAdvPanelBox> Container)
 {
-	Slot = &Container->AddSlot()
-					 .Padding(Padding)
-					 .HAlign(HorizontalAlignment)
-					 .VAlign(VerticalAlignment)
+	Container->AddSlot()
+	.Expose(Slot)
+	.Padding(Padding)
+	.HAlign(HorizontalAlignment)
+	.VAlign(VerticalAlignment)
 	[
 		Content == nullptr ? SNullWidget::NullWidget : Content->TakeWidget()
 	];

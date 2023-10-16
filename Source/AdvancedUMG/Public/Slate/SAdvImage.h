@@ -7,8 +7,10 @@
 #include "Slate/SAdvPanel.h"
 
 // Image widget that lets you place children inside.
-class ADVANCEDUMG_API SAdvImage : public SAdvPanel
+class SAdvImage : public SAdvPanel
 {
+	SLATE_DECLARE_WIDGET_API(SAdvImage, SAdvPanel, ADVANCEDUMG_API)
+
 public:
 	SLATE_BEGIN_ARGS(SAdvImage)
 			: _Image(FCoreStyle::Get().GetDefaultBrush())
@@ -29,7 +31,7 @@ public:
 		/** Invoked when the mouse is pressed in the widget. */
 		SLATE_EVENT(FPointerEventHandler, OnMouseButtonDown)
 
-		SLATE_SUPPORTS_SLOT(SAdvPanel::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
 	SLATE_END_ARGS()
 
 	/** Constructor */
@@ -62,7 +64,7 @@ protected:
 	FInvalidatableBrushAttribute Image;
 
 	/** Color and opacity scale for this image */
-	TAttribute<FSlateColor> ColorAndOpacity;
+	TSlateAttribute<FSlateColor> ColorAndOpacity;
 
 	/** Flips the image if the localization's flow direction is RightToLeft */
 	bool bFlipForRightToLeftFlowDirection;

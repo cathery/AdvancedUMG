@@ -4,6 +4,11 @@
 
 #include "Widgets/Accessibility/SlateAccessibleWidgets.h"
 
+SLATE_IMPLEMENT_WIDGET(SAdvButtonBase)
+void SAdvButtonBase::PrivateRegisterAttributes(FSlateAttributeInitializer& AttributeInitializer)
+{
+}
+
 SAdvButtonBase::SAdvButtonBase()
 	: PressedScreenSpacePosition(FVector2D::ZeroVector)
 	, ClickMethod(EButtonClickMethod::DownAndUp)
@@ -26,9 +31,9 @@ SAdvButtonBase::SAdvButtonBase()
 void SAdvButtonBase::Construct(const FArguments& InArgs)
 {
 	// Call the parent constructor with our slots
-	SAdvPanel::FArguments ParentArgs;
-	ParentArgs.Slots = InArgs.Slots;
-	SAdvPanel::Construct(ParentArgs);
+	Super::FArguments ParentArgs;
+	ParentArgs._Slots = MoveTemp(const_cast<FArguments&>(InArgs)._Slots);
+	Super::Construct(ParentArgs);
 
 	PressedScreenSpacePosition = FVector2D::ZeroVector;
 
@@ -275,7 +280,8 @@ FReply SAdvButtonBase::Click()
 	{
 		FReply Reply = OnClicked.Execute();
 #if WITH_ACCESSIBILITY
-		FSlateApplicationBase::Get().GetAccessibleMessageHandler()->OnWidgetEventRaised(AsShared(), EAccessibleEvent::Activate);
+		// @TODOAccessibility: This should pass the Id of the user that clicked the button but we don't want to change the regular Slate API just yet
+		FSlateApplicationBase::Get().GetAccessibleMessageHandler()->OnWidgetEventRaised(FSlateAccessibleMessageHandler::FSlateWidgetAccessibleEventArgs(AsShared(), EAccessibleEvent::Activate));
 #endif
 		return Reply;
 	}

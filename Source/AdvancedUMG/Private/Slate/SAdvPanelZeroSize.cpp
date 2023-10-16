@@ -2,12 +2,18 @@
 
 #include "Slate/SAdvPanelZeroSize.h"
 
+SLATE_IMPLEMENT_WIDGET(SAdvPanelZeroSize)
+void SAdvPanelZeroSize::PrivateRegisterAttributes(FSlateAttributeInitializer& AttributeInitializer)
+{
+}
+
+
 void SAdvPanelZeroSize::Construct(const FArguments& InArgs)
 {
 	// Call the parent constructor with our slots
-	SAdvPanel::FArguments ParentArgs;
-	ParentArgs.Slots = InArgs.Slots;
-	SAdvPanel::Construct(ParentArgs);
+	Super::FArguments ParentArgs;
+	ParentArgs._Slots = MoveTemp(const_cast<FArguments&>(InArgs)._Slots);
+	Super::Construct(ParentArgs);
 }
 
 FVector2D SAdvPanelZeroSize::ComputeDesiredSize(float LayoutScaleMultiplier) const

@@ -14,15 +14,17 @@
  * * Padding
  * * Child Alignment
  */
-class ADVANCEDUMG_API SAdvPanelZeroSize : public SAdvPanel
+class SAdvPanelZeroSize : public SAdvPanel
 {
+	SLATE_DECLARE_WIDGET_API(SAdvPanelZeroSize, SAdvPanel, ADVANCEDUMG_API)
+
 public:
 	SLATE_BEGIN_ARGS(SAdvPanelZeroSize)
 		{
 			_Visibility = EVisibility::SelfHitTestInvisible;
 		}
 
-		SLATE_SUPPORTS_SLOT(SAdvPanel::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
 	SLATE_END_ARGS()
 
 	/**

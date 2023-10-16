@@ -9,8 +9,10 @@
 /**
  * The base for all Adv Buttons. It has all the functionality of a button without any of the visuals.
  */
-class ADVANCEDUMG_API SAdvButtonBase : public SAdvPanel
+class SAdvButtonBase : public SAdvPanel
 {
+	SLATE_DECLARE_WIDGET_API(SAdvButtonBase, SAdvPanel, ADVANCEDUMG_API)
+
 public:
 	SLATE_BEGIN_ARGS(SAdvButtonBase)
 			: _ClickMethod(EButtonClickMethod::DownAndUp)
@@ -47,7 +49,7 @@ public:
 		/** Called when the button is no longer hovered over */
 		SLATE_EVENT(FSimpleDelegate, OnUnhovered)
 
-		SLATE_SUPPORTS_SLOT(SAdvPanel::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
 	SLATE_END_ARGS()
 
 public:

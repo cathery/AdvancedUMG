@@ -9,8 +9,10 @@
 #include "Slate/SAdvButtonBase.h"
 
 // A simple button with only one background image. The button will nudge down when pressed.
-class ADVANCEDUMG_API SAdvButtonSimple : public SAdvButtonBase
+class SAdvButtonSimple : public SAdvButtonBase
 {
+	SLATE_DECLARE_WIDGET_API(SAdvButtonSimple, SAdvButtonBase, ADVANCEDUMG_API)
+
 public:
 	SLATE_BEGIN_ARGS(SAdvButtonSimple)
 			: _ClickMethod(EButtonClickMethod::DownAndUp)
@@ -51,7 +53,7 @@ public:
 		/** The visual style of the button */
 		SLATE_STYLE_ARGUMENT(FAdvButtonSimpleStyle, Style)
 
-		SLATE_SUPPORTS_SLOT(SAdvPanel::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
 	SLATE_END_ARGS()
 
 public:

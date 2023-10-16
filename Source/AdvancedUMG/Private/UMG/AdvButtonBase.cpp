@@ -13,7 +13,7 @@ UAdvBaseButton::UAdvBaseButton()
 	, IsFocusable(false)
 {
 	bIsVariable = true;
-	Visibility  = ESlateVisibility::Visible;
+	SetVisibilityInternal(ESlateVisibility::Visible);
 
 #if WITH_EDITORONLY_DATA
 	AccessibleBehavior       = ESlateAccessibleBehavior::Summary;

@@ -252,10 +252,11 @@ UMaterialInstanceDynamic* UAdvImage::GetDynamicMaterial()
 }
 
 UAdvImage::UAdvImage()
-	: ColorAndOpacity(FLinearColor::White)
 {
+	bFlipForRightToLeftFlowDirection = false;
+	ColorAndOpacity = FLinearColor::White;
 	bIsVariable = true;
-	Visibility  = ESlateVisibility::Visible;
+	SetVisibilityInternal(ESlateVisibility::Visible);
 }
 
 void UAdvImage::SynchronizeProperties()

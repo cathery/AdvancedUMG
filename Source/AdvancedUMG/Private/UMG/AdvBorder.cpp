@@ -9,7 +9,7 @@
 UAdvBorder::UAdvBorder()
 {
 	bIsVariable = true;
-	Visibility  = ESlateVisibility::Visible;
+	SetVisibilityInternal(ESlateVisibility::Visible);
 	Brush.Margin = FMargin(0.3333f);
 	Brush.DrawAs = ESlateBrushDrawType::Border;
 	ImageScale = 1.0f;

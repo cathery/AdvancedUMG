@@ -9,8 +9,10 @@
 #include "Slate/SAdvButtonBase.h"
 
 // A generic button widget with normal, hovered, and pressed states. Most similar to SButton.
-class ADVANCEDUMG_API SAdvButtonGeneric : public SAdvButtonBase
+class SAdvButtonGeneric : public SAdvButtonBase
 {
+	SLATE_DECLARE_WIDGET_API(SAdvButtonGeneric, SAdvButtonBase, ADVANCEDUMG_API)
+
 public:
 	SLATE_BEGIN_ARGS(SAdvButtonGeneric)
 			: _ClickMethod(EButtonClickMethod::DownAndUp)
@@ -59,7 +61,7 @@ public:
 		/** Color for the button itself */
 		SLATE_ATTRIBUTE(FLinearColor, BackgroundColor)
 
-		SLATE_SUPPORTS_SLOT(SAdvPanel::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
 	SLATE_END_ARGS()
 
 public:
@@ -95,10 +97,10 @@ protected:
 	const FAdvButtonGenericStyle* Style;
 
 	/** Color for the child widgets */
-	TAttribute<FLinearColor> ColorAndOpacity;
+	TSlateAttribute<FLinearColor> ColorAndOpacity;
 
 	/** Color for the button itself */
-	TAttribute<FLinearColor> BackgroundColor;
+	TSlateAttribute<FLinearColor> BackgroundColor;
 
 protected:
 	//~ Begin SAdvBaseButton Interface

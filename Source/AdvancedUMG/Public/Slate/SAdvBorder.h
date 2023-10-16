@@ -13,8 +13,10 @@
  * * Child Alignment
  * * Image (Border only)
  */
-class ADVANCEDUMG_API SAdvBorder : public SAdvPanel
+class SAdvBorder : public SAdvPanel
 {
+	SLATE_DECLARE_WIDGET_API(SAdvBorder, SAdvPanel, ADVANCEDUMG_API)
+
 public:
 	SLATE_BEGIN_ARGS(SAdvBorder)
 			: _Image(*FCoreStyle::Get().GetDefaultBrush())
@@ -26,7 +28,7 @@ public:
 		SLATE_ARGUMENT(FSlateBrush, Image)
 		SLATE_ARGUMENT(float, ImageScale)
 
-		SLATE_SUPPORTS_SLOT(SAdvPanel::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
 	SLATE_END_ARGS()
 
 	/** Constructor */

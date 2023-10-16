@@ -4,6 +4,23 @@
 
 #include "Layout/LayoutUtils.h"
 
+SLATE_IMPLEMENT_WIDGET(SAdvPanel)
+void SAdvPanel::PrivateRegisterAttributes(FSlateAttributeInitializer& AttributeInitializer)
+{
+	FSlateWidgetSlotAttributeInitializer Initializer = SLATE_ADD_PANELCHILDREN_DEFINITION(AttributeInitializer, Children);
+	FSlot::RegisterAttributes(Initializer);
+}
+
+void SAdvPanel::FSlot::Construct(const FChildren& SlotOwner, FSlotArguments&& InArgs)
+{
+	TBasicLayoutWidgetSlot<FSlot>::Construct(SlotOwner, MoveTemp(InArgs));
+}
+
+void SAdvPanel::FSlot::RegisterAttributes(FSlateWidgetSlotAttributeInitializer& AttributeInitializer)
+{
+	TWidgetSlotWithAttributeSupport::RegisterAttributes(AttributeInitializer);
+}
+
 SAdvPanel::SAdvPanel()
 	: Children(this)
 {
@@ -13,45 +30,17 @@ SAdvPanel::SAdvPanel()
 
 void SAdvPanel::Construct(const FArguments& InArgs)
 {
-	const int32 NumSlots = InArgs.Slots.Num();
-	for (int32 SlotIndex = 0; SlotIndex < NumSlots; ++SlotIndex)
-	{
-		Children.Add(InArgs.Slots[SlotIndex]);
-	}
-}
-
-SAdvPanel::FSlot& SAdvPanel::AddSlot()
-{
-	Invalidate(EInvalidateWidget::Layout);
-
-	FSlot& NewSlot = *(new FSlot());
-	this->Children.Add(&NewSlot);
-	return NewSlot;
+	Children.AddSlots(MoveTemp(const_cast<TArray<FSlot::FSlotArguments>&>(InArgs._Slots)));
 }
 
 int32 SAdvPanel::RemoveSlot(const TSharedRef<SWidget>& SlotWidget)
 {
-	Invalidate(EInvalidateWidget::Layout);
-
-	for (int32 SlotIdx = 0; SlotIdx < Children.Num(); ++SlotIdx)
-	{
-		if (SlotWidget == Children[SlotIdx].GetWidget())
-		{
-			Children.RemoveAt(SlotIdx);
-			return SlotIdx;
-		}
-	}
-
-	return -1;
+	return Children.Remove(SlotWidget);
 }
 
 void SAdvPanel::ClearChildren()
 {
-	if (Children.Num())
-	{
-		Invalidate(EInvalidateWidget::Layout);
-		Children.Empty();
-	}
+	Children.Empty();
 }
 
 int32 SAdvPanel::GetNumChildren() const
@@ -64,7 +53,6 @@ FChildren* SAdvPanel::GetChildren()
 	return &Children;
 }
 
-
 void SAdvPanel::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const
 {
 	for (int32 ChildIndex = 0; ChildIndex < Children.Num(); ++ChildIndex)
@@ -76,11 +64,11 @@ void SAdvPanel::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedCh
 		const EVisibility ChildVisibility = CurWidget->GetVisibility();
 		if (ArrangedChildren.Accepts(ChildVisibility))
 		{
-			const FMargin SlotPadding(LayoutPaddingWithFlow(InFlowDirection, CurChild.SlotPadding.Get()));
+			const FMargin SlotPadding(LayoutPaddingWithFlow(InFlowDirection, CurChild.GetPadding()));
 			const AlignmentArrangeResult XResult = AlignChild<Orient_Horizontal>(InFlowDirection, AllottedGeometry.GetLocalSize().X, CurChild, SlotPadding);
 			const AlignmentArrangeResult YResult = AlignChild<Orient_Vertical>(AllottedGeometry.GetLocalSize().Y, CurChild, SlotPadding);
 
-			ArrangedChildren.AddWidget(ChildVisibility, AllottedGeometry.MakeChild(
+			ArrangedChildren.AddWidget(AllottedGeometry.MakeChild(
 				CurWidget,
 				FVector2D(XResult.Offset, YResult.Offset),
 				FVector2D(XResult.Size, YResult.Size)
@@ -108,7 +96,7 @@ FVector2D SAdvPanel::ComputeDesiredSize(float LayoutScaleMultiplier) const
 		// As long as the widgets are not collapsed, they should contribute to the desired size.
 		if (ChildVisibilty != EVisibility::Collapsed)
 		{
-			const FVector2D ChildSize = CurWidget->GetDesiredSize() + CurChild.SlotPadding.Get().GetDesiredSize();
+			const FVector2D ChildSize = CurWidget->GetDesiredSize() + CurChild.GetPadding().GetDesiredSize();
 
 			MaxSize.X = FMath::Max(MaxSize.X, ChildSize.X);
 			MaxSize.Y = FMath::Max(MaxSize.Y, ChildSize.Y);
@@ -158,6 +146,6 @@ FReply SAdvPanel::OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent&
 {
 	AdvMouseWheelEvent.ExecuteIfBound(MyGeometry, MouseEvent);
 
-	return SPanel::OnMouseWheel(MyGeometry, MouseEvent);
+	return Super::OnMouseWheel(MyGeometry, MouseEvent);
 }
 

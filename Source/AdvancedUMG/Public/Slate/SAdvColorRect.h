@@ -7,8 +7,10 @@
 #include "Slate/SAdvPanel.h"
 
 // A widget that paints a solid color background with an optional outline
-class ADVANCEDUMG_API SAdvColorRect : public SAdvPanel
+class SAdvColorRect : public SAdvPanel
 {
+	SLATE_DECLARE_WIDGET_API(SAdvColorRect, SAdvPanel, ADVANCEDUMG_API)
+
 public:
 	SLATE_BEGIN_ARGS(SAdvColorRect)
 			: _ColorAndOpacity(FLinearColor::White)
@@ -29,7 +31,7 @@ public:
 		/** Invoked when the mouse is pressed in the widget. */
 		SLATE_EVENT(FPointerEventHandler, OnMouseButtonDown)
 
-		SLATE_SUPPORTS_SLOT(SAdvPanel::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
 	SLATE_END_ARGS()
 
 	/** Constructor */
@@ -68,13 +70,13 @@ protected:
 	static const FSlateBrush Brush;
 
 	/** Color and opacity for the solid color */
-	TAttribute<FSlateColor> ColorAndOpacity;
+	TSlateAttribute<FSlateColor> ColorAndOpacity;
 
 	/** Color and opacity for the outline */
-	TAttribute<FSlateColor> OutlineColorAndOpacity;
+	TSlateAttribute<FSlateColor> OutlineColorAndOpacity;
 
 	/** Outline thickness */
-	TAttribute<FMargin> OutlineThickness;
+	TSlateAttribute<FMargin> OutlineThickness;
 
 	/** Invoked when the mouse is pressed in the widget. */
 	FPointerEventHandler OnMouseButtonDownHandler;

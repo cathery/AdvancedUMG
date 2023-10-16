@@ -6,29 +6,37 @@
 
 const FSlateBrush SAdvColorRect::Brush = FSlateBrush();
 
+SLATE_IMPLEMENT_WIDGET(SAdvColorRect)
+void SAdvColorRect::PrivateRegisterAttributes(FSlateAttributeInitializer& AttributeInitializer)
+{
+	SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION(AttributeInitializer, ColorAndOpacity, EInvalidateWidgetReason::Paint);
+	SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION(AttributeInitializer, OutlineColorAndOpacity, EInvalidateWidgetReason::Paint);
+	SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION(AttributeInitializer, OutlineThickness, EInvalidateWidgetReason::Paint);
+}
+
 SAdvColorRect::SAdvColorRect()
-	: ColorAndOpacity(FLinearColor::White)
-	, OutlineColorAndOpacity(FLinearColor::Black)
-	, OutlineThickness(0.0f)
+	: ColorAndOpacity(*this, FLinearColor::White)
+	, OutlineColorAndOpacity(*this, FLinearColor::Black)
+	, OutlineThickness(*this, 0.0f)
 {
 }
 
 void SAdvColorRect::Construct(const FArguments& InArgs)
 {
 	// Call the parent constructor with our slots
-	SAdvPanel::FArguments ParentArgs;
-	ParentArgs.Slots = InArgs.Slots;
-	SAdvPanel::Construct(ParentArgs);
+	Super::FArguments ParentArgs;
+	ParentArgs._Slots = MoveTemp(const_cast<FArguments&>(InArgs)._Slots);
+	Super::Construct(ParentArgs);
 
-	ColorAndOpacity        = InArgs._ColorAndOpacity;
-	OutlineColorAndOpacity = InArgs._OutlineColorAndOpacity;
-	OutlineThickness       = InArgs._OutlineThickness;
+	SetColorAndOpacity(InArgs._ColorAndOpacity);
+	SetOutlineColorAndOpacity(InArgs._OutlineColorAndOpacity);
+	SetOutlineThickness(InArgs._OutlineThickness);
 	SetOnMouseButtonDown(InArgs._OnMouseButtonDown);
 }
 
 void SAdvColorRect::SetColorAndOpacity(const TAttribute<FSlateColor>& InColorAndOpacity)
 {
-	SetAttribute(ColorAndOpacity, InColorAndOpacity, EInvalidateWidgetReason::Paint);
+	ColorAndOpacity.Assign(*this, InColorAndOpacity);
 }
 
 void SAdvColorRect::SetColorAndOpacity(FLinearColor InColorAndOpacity)
@@ -38,7 +46,7 @@ void SAdvColorRect::SetColorAndOpacity(FLinearColor InColorAndOpacity)
 
 void SAdvColorRect::SetOutlineColorAndOpacity(const TAttribute<FSlateColor>& InOutlineColorAndOpacity)
 {
-	SetAttribute(OutlineColorAndOpacity, InOutlineColorAndOpacity, EInvalidateWidgetReason::Paint);
+	OutlineColorAndOpacity.Assign(*this, InOutlineColorAndOpacity);
 }
 
 void SAdvColorRect::SetOutlineColorAndOpacity(FLinearColor InOutlineColorAndOpacity)
@@ -48,7 +56,7 @@ void SAdvColorRect::SetOutlineColorAndOpacity(FLinearColor InOutlineColorAndOpac
 
 void SAdvColorRect::SetOutlineThickness(const TAttribute<FMargin> InOutlineThickness)
 {
-	SetAttribute(OutlineThickness, InOutlineThickness, EInvalidateWidgetReason::Paint);
+	OutlineThickness.Assign(*this, InOutlineThickness);
 }
 
 int32 SAdvColorRect::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
@@ -104,7 +112,7 @@ int32 SAdvColorRect::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGe
 
 FVector2D SAdvColorRect::ComputeDesiredSize(float LayoutScaleMultiplier) const
 {
-	const FVector2D ContentSize = SAdvPanel::ComputeDesiredSize(LayoutScaleMultiplier);
+	const FVector2D ContentSize = Super::ComputeDesiredSize(LayoutScaleMultiplier);
 
 	// idk if anything should be done here yet
 

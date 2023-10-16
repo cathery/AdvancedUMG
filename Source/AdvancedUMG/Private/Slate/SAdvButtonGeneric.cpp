@@ -6,8 +6,17 @@
 
 #include "Slate/AdvButtonGenericStyle.h"
 
+SLATE_IMPLEMENT_WIDGET(SAdvButtonGeneric)
+void SAdvButtonGeneric::PrivateRegisterAttributes(FSlateAttributeInitializer& AttributeInitializer)
+{
+	SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION(AttributeInitializer, ColorAndOpacity, EInvalidateWidgetReason::Paint);
+	SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION(AttributeInitializer, BackgroundColor, EInvalidateWidgetReason::Paint);
+}
+
 SAdvButtonGeneric::SAdvButtonGeneric()
 	: Style(nullptr)
+	, ColorAndOpacity(*this, FLinearColor::White)
+	, BackgroundColor(*this, FLinearColor::White)
 {
 }
 
@@ -21,8 +30,8 @@ void SAdvButtonGeneric::Construct(const FArguments& InArgs)
 	bIsPressed = false;
 
 	// Call the parent constructor with our slots
-	SAdvButtonBase::FArguments ParentArgs;
-	ParentArgs.Slots = InArgs.Slots;
+	Super::FArguments ParentArgs;
+	ParentArgs._Slots = MoveTemp(const_cast<FArguments&>(InArgs)._Slots);
 	ParentArgs
 		.ClickMethod(InArgs._ClickMethod)
 		.TouchMethod(InArgs._TouchMethod)
@@ -33,12 +42,12 @@ void SAdvButtonGeneric::Construct(const FArguments& InArgs)
 		.OnReleased(InArgs._OnReleased)
 		.OnHovered(InArgs._OnHovered)
 		.OnUnhovered(InArgs._OnUnhovered);
-	SAdvButtonBase::Construct(ParentArgs);
+	Super::Construct(ParentArgs);
 
 	Style = InArgs._Style;
 
-	ColorAndOpacity = InArgs._ColorAndOpacity;
-	BackgroundColor = InArgs._BackgroundColor;
+	SetColorAndOpacity(InArgs._ColorAndOpacity);
+	SetBorderBackgroundColor(InArgs._BackgroundColor);
 }
 
 FMargin SAdvButtonGeneric::GetCombinedPadding() const
@@ -78,29 +87,29 @@ void SAdvButtonGeneric::SetButtonStyle(const FAdvButtonGenericStyle* ButtonStyle
 
 void SAdvButtonGeneric::SetColorAndOpacity(const TAttribute<FLinearColor>& InColorAndOpacity)
 {
-	SetAttribute(ColorAndOpacity, InColorAndOpacity, EInvalidateWidgetReason::Paint);
+	ColorAndOpacity.Assign(*this, InColorAndOpacity);
 }
 
 void SAdvButtonGeneric::SetBorderBackgroundColor(const TAttribute<FLinearColor>& InBackgroundColor)
 {
-	SetAttribute(BackgroundColor, InBackgroundColor, EInvalidateWidgetReason::Paint);
+	BackgroundColor.Assign(*this, InBackgroundColor);
 }
 
 void SAdvButtonGeneric::OnClick()
 {
-	SAdvButtonBase::OnClick();
+	Super::OnClick();
 	PlaySound(Style->ClickedSound);
 }
 
 void SAdvButtonGeneric::OnPress()
 {
-	SAdvButtonBase::OnPress();
+	Super::OnPress();
 	PlaySound(Style->PressedSound);
 }
 
 void SAdvButtonGeneric::OnHover()
 {
-	SAdvButtonBase::OnHover();
+	Super::OnHover();
 	PlaySound(Style->HoveredSound);
 }
 
@@ -116,7 +125,7 @@ void SAdvButtonGeneric::OnArrangeChildren(const FGeometry& AllottedGeometry, FAr
 		const EVisibility ChildVisibility = CurWidget->GetVisibility();
 		if (ArrangedChildren.Accepts(ChildVisibility))
 		{
-			const FMargin SlotPadding(LayoutPaddingWithFlow(InFlowDirection, GetCombinedPadding() + CurChild.SlotPadding.Get()));
+			const FMargin SlotPadding(LayoutPaddingWithFlow(InFlowDirection, GetCombinedPadding() + CurChild.GetPadding()));
 			const AlignmentArrangeResult XResult = AlignChild<Orient_Horizontal>(InFlowDirection, AllottedGeometry.GetLocalSize().X, CurChild, SlotPadding);
 			const AlignmentArrangeResult YResult = AlignChild<Orient_Vertical>(AllottedGeometry.GetLocalSize().Y, CurChild, SlotPadding);
 

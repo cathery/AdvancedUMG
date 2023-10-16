@@ -7,8 +7,10 @@
 #include "Slate/SAdvPanel.h"
 
 // Basic container widget that lets you define padding for child elements.
-class ADVANCEDUMG_API SAdvPanelPadding : public SAdvPanel
+class SAdvPanelPadding : public SAdvPanel
 {
+	SLATE_DECLARE_WIDGET_API(SAdvPanelPadding, SAdvPanel, ADVANCEDUMG_API)
+
 public:
 	SLATE_BEGIN_ARGS(SAdvPanelPadding)
 			: _Padding(FMargin(0.0f))
@@ -16,10 +18,13 @@ public:
 			_Visibility = EVisibility::SelfHitTestInvisible;
 		}
 
-		SLATE_SUPPORTS_SLOT(SAdvPanel::FSlot)
+		SLATE_SLOT_ARGUMENT(FSlot, Slots)
 
 		SLATE_ATTRIBUTE(FMargin, Padding)
 	SLATE_END_ARGS()
+
+	/** Constructor */
+	SAdvPanelPadding();
 
 	/**
 	 * Construct this widget
@@ -38,5 +43,5 @@ protected:
 
 protected:
 	/** The panel's padding. */
-	TAttribute<FMargin> Padding;
+	TSlateAttribute<FMargin> Padding;
 };

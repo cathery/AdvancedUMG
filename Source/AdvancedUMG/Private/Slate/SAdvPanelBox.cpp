@@ -4,8 +4,30 @@
 
 #include "Layout/LayoutUtils.h"
 
+SLATE_IMPLEMENT_WIDGET(SAdvPanelBox)
+void SAdvPanelBox::PrivateRegisterAttributes(FSlateAttributeInitializer& AttributeInitializer)
+{
+	FSlateWidgetSlotAttributeInitializer Initializer = SLATE_ADD_PANELCHILDREN_DEFINITION(AttributeInitializer, Children);
+	FSlot::RegisterAttributes(Initializer);
+
+	SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION(AttributeInitializer, Spacing, EInvalidateWidgetReason::Layout);
+	SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION(AttributeInitializer, Orientation, EInvalidateWidgetReason::Layout);
+}
+
+void SAdvPanelBox::FSlot::Construct(const FChildren& SlotOwner, FSlotArguments&& InArgs)
+{
+	TBasicLayoutWidgetSlot<FSlot>::Construct(SlotOwner, MoveTemp(InArgs));
+}
+
+void SAdvPanelBox::FSlot::RegisterAttributes(FSlateWidgetSlotAttributeInitializer& AttributeInitializer)
+{
+	TWidgetSlotWithAttributeSupport::RegisterAttributes(AttributeInitializer);
+}
+
 SAdvPanelBox::SAdvPanelBox()
 	: Children(this)
+	, Spacing(*this, 0)
+	, Orientation(*this, EOrientation::Orient_Horizontal)
 {
 	SetCanTick(false);
 	bCanSupportFocus = false;
@@ -13,52 +35,29 @@ SAdvPanelBox::SAdvPanelBox()
 
 void SAdvPanelBox::Construct(const FArguments& InArgs)
 {
-	Spacing              = InArgs._Spacing;
-	Orientation          = InArgs._Orientation;
-	const int32 NumSlots = InArgs.Slots.Num();
-	for (int32 SlotIndex = 0; SlotIndex < NumSlots; ++SlotIndex)
-	{
-		Children.Add(InArgs.Slots[SlotIndex]);
-	}
-}
-
-SAdvPanelBox::FSlot& SAdvPanelBox::AddSlot()
-{
-	Invalidate(EInvalidateWidget::Layout);
-
-	FSlot& NewSlot = *(new FSlot());
-	this->Children.Add(&NewSlot);
-	return NewSlot;
+	SetSpacing(InArgs._Spacing);
+	SetOrientation(InArgs._Orientation);
+	Children.AddSlots(MoveTemp(const_cast<TArray<FSlot::FSlotArguments>&>(InArgs._Slots)));
 }
 
 int32 SAdvPanelBox::RemoveSlot(const TSharedRef<SWidget>& SlotWidget)
 {
-	Invalidate(EInvalidateWidget::Layout);
-
-	for (int32 SlotIdx = 0; SlotIdx < Children.Num(); ++SlotIdx)
-	{
-		if (SlotWidget == Children[SlotIdx].GetWidget())
-		{
-			Children.RemoveAt(SlotIdx);
-			return SlotIdx;
-		}
-	}
-
-	return -1;
+	return Children.Remove(SlotWidget);
 }
 
 void SAdvPanelBox::ClearChildren()
 {
-	if (Children.Num())
-	{
-		Invalidate(EInvalidateWidget::Layout);
-		Children.Empty();
-	}
+	Children.Empty();
 }
 
 void SAdvPanelBox::SetSpacing(const TAttribute<float>& InSpacing)
 {
-	SetAttribute(Spacing, InSpacing, EInvalidateWidgetReason::Layout);
+	Spacing.Assign(*this, InSpacing);
+}
+
+void SAdvPanelBox::SetOrientation(const TAttribute<EOrientation>& InOrientation)
+{
+	Orientation.Assign(*this, InOrientation);
 }
 
 void SAdvPanelBox::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const
@@ -88,11 +87,11 @@ void SAdvPanelBox::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrange
 				// All widgets contribute their margin to the fixed space requirement
 				if (Orientation.Get() == Orient_Vertical)
 				{
-					FixedTotal += CurChild.SlotPadding.Get().GetTotalSpaceAlong<Orient_Vertical>();
+					FixedTotal += CurChild.GetPadding().GetTotalSpaceAlong<Orient_Vertical>();
 				}
 				else
 				{
-					FixedTotal += CurChild.SlotPadding.Get().GetTotalSpaceAlong<Orient_Horizontal>();
+					FixedTotal += CurChild.GetPadding().GetTotalSpaceAlong<Orient_Horizontal>();
 				}
 
 				if (CurChild.SizeParam.SizeRule == FSizeParam::SizeRule_Stretch)
@@ -102,7 +101,7 @@ void SAdvPanelBox::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrange
 				}
 				else
 				{
-					FVector2D ChildDesiredSize = CurChild.GetWidget()->GetDesiredSize();
+					FVector2f ChildDesiredSize = CurChild.GetWidget()->GetDesiredSize();
 
 					// Auto-sized children contribute their desired size to the fixed space requirement
 					const float ChildSize = (CurOrientation == Orient_Vertical)
@@ -150,7 +149,7 @@ void SAdvPanelBox::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrange
 				}
 				else
 				{
-					const FVector2D ChildDesiredSize = CurChild.GetWidget()->GetDesiredSize();
+					const FVector2f ChildDesiredSize = CurChild.GetWidget()->GetDesiredSize();
 
 					// Auto-sized widgets get their desired-size value
 					ChildSize = (CurOrientation == Orient_Vertical)
@@ -159,21 +158,21 @@ void SAdvPanelBox::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrange
 				}
 			}
 
-			const FMargin SlotPadding(LayoutPaddingWithFlow(InLayoutFlow, CurChild.SlotPadding.Get()));
+			const FMargin SlotPadding(LayoutPaddingWithFlow(InLayoutFlow, CurChild.GetPadding()));
 
-			FVector2D SlotSize = (Orientation.Get() == Orient_Vertical)
-				? FVector2D(AllottedGeometry.GetLocalSize().X, ChildSize + SlotPadding.GetTotalSpaceAlong<Orient_Vertical>())
-				: FVector2D(ChildSize + SlotPadding.GetTotalSpaceAlong<Orient_Horizontal>(), AllottedGeometry.GetLocalSize().Y);
+			FVector2f SlotSize = (Orientation.Get() == Orient_Vertical)
+				? FVector2f(AllottedGeometry.GetLocalSize().X, ChildSize + SlotPadding.GetTotalSpaceAlong<Orient_Vertical>())
+				: FVector2f(ChildSize + SlotPadding.GetTotalSpaceAlong<Orient_Horizontal>(), AllottedGeometry.GetLocalSize().Y);
 
 			// Figure out the size and local position of the child within the slot
 			AlignmentArrangeResult XAlignmentResult = AlignChild<Orient_Horizontal>(InLayoutFlow, SlotSize.X, CurChild, SlotPadding);
 			AlignmentArrangeResult YAlignmentResult = AlignChild<Orient_Vertical>(SlotSize.Y, CurChild, SlotPadding);
 
-			const FVector2D LocalPosition = (CurOrientation == Orient_Vertical)
-			? FVector2D(XAlignmentResult.Offset, PositionSoFar + YAlignmentResult.Offset)
-			: FVector2D(PositionSoFar + XAlignmentResult.Offset, YAlignmentResult.Offset);
+			const FVector2f LocalPosition = (CurOrientation == Orient_Vertical)
+			? FVector2f(XAlignmentResult.Offset, PositionSoFar + YAlignmentResult.Offset)
+			: FVector2f(PositionSoFar + XAlignmentResult.Offset, YAlignmentResult.Offset);
 
-			const FVector2D LocalSize = FVector2D(XAlignmentResult.Size, YAlignmentResult.Size);
+			const FVector2f LocalSize = FVector2f(XAlignmentResult.Size, YAlignmentResult.Size);
 
 			// Add the information about this child to the output list (ArrangedChildren)
 			ArrangedChildren.AddWidget(ChildVisibility, AllottedGeometry.MakeChild(
@@ -243,23 +242,23 @@ FVector2D SAdvPanelBox::ComputeDesiredSize(float LayoutScaleMultiplier) const
 
 		if (CurChild.GetWidget()->GetVisibility() != EVisibility::Collapsed)
 		{
-			const FVector2D& CurChildDesiredSize = CurChild.GetWidget()->GetDesiredSize();
+			const FVector2f& CurChildDesiredSize = CurChild.GetWidget()->GetDesiredSize();
 
 			if (Orientation.Get() == Orient_Vertical)
 			{
 				// For a vertical panel, we want to find the maximum desired width (including margin).
 				// That will be the desired width of the whole panel.
-				MyDesiredSize.X = FMath::Max(MyDesiredSize.X, CurChildDesiredSize.X + CurChild.SlotPadding.Get().GetTotalSpaceAlong<Orient_Horizontal>());
+				MyDesiredSize.X = FMath::Max(MyDesiredSize.X, CurChildDesiredSize.X + CurChild.GetPadding().GetTotalSpaceAlong<Orient_Horizontal>());
 
-				MyDesiredSize.Y += CurChildDesiredSize.Y + CurChild.SlotPadding.Get().GetTotalSpaceAlong<Orient_Vertical>();
+				MyDesiredSize.Y += CurChildDesiredSize.Y + CurChild.GetPadding().GetTotalSpaceAlong<Orient_Vertical>();
 				bAtLeastOneChildVisible ? MyDesiredSize.Y += Spacing.Get() : bAtLeastOneChildVisible = true;
 			}
 			else
 			{
 				// A horizontal panel is just a sideways vertical panel: the axes are swapped.
-				MyDesiredSize.Y = FMath::Max(MyDesiredSize.Y, CurChildDesiredSize.Y + CurChild.SlotPadding.Get().GetTotalSpaceAlong<Orient_Vertical>());
+				MyDesiredSize.Y = FMath::Max(MyDesiredSize.Y, CurChildDesiredSize.Y + CurChild.GetPadding().GetTotalSpaceAlong<Orient_Vertical>());
 
-				MyDesiredSize.X += CurChildDesiredSize.X + CurChild.SlotPadding.Get().GetTotalSpaceAlong<Orient_Horizontal>();
+				MyDesiredSize.X += CurChildDesiredSize.X + CurChild.GetPadding().GetTotalSpaceAlong<Orient_Horizontal>();
 				bAtLeastOneChildVisible ? MyDesiredSize.X += Spacing.Get() : bAtLeastOneChildVisible = true;
 			}
 		}

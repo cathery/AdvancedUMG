@@ -7,7 +7,7 @@
 UAdvPanelBase::UAdvPanelBase()
 {
 	bIsVariable = false;
-	Visibility  = ESlateVisibility::SelfHitTestInvisible;
+	SetVisibilityInternal(ESlateVisibility::SelfHitTestInvisible);
 }
 
 UClass* UAdvPanelBase::GetSlotClass() const
